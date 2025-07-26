@@ -55,12 +55,13 @@ while i < len(clean_texts):
                 data['단백질'] = match.group(0)
                 break
 
-    elif '지방' in text:
+    elif '지방' in text and all(x not in text for x in ['포화', '트랜스']):
         for j in range(i+1, min(i+4, len(clean_texts))):
             match = re.search(r'(\d+(\.\d+)?)\s*g', clean_texts[j])
             if match and '%' not in clean_texts[j]:
                 data['지방'] = match.group(0)
                 break
+            
     i += 1
 
 # 출력
