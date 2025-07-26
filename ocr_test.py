@@ -29,8 +29,9 @@ while i < len(clean_texts):
 
     if any(label in text for label in ['칼로리', '열량', 'kcal']):
         for j in range(i+1, min(i+4, len(clean_texts))):
-            match = re.search(r'(\d+(\.\d+)?)\s*(kcal|g|㎉)', clean_texts[j])
+            match = re.search(r'(\d+(\.\d+)?)\s*(kcal|㎉)', clean_texts[j])
             if match and '%' not in clean_texts[j]:
+                value = match.group(1) # 숫자만
                 data['칼로리'] = match.group(0)
                 break
 
@@ -57,10 +58,11 @@ while i < len(clean_texts):
     i += 1
 
 # 출력
-if all(data.values()):
-    print("✅ 파싱된 영양성분:", data)
-else:
-    print("⚠️ 영양성분을 찾을 수 없습니다")
+for key in data:
+    if data[key] is None:
+        data[key] = '0g' if key != '칼로리' else '0kcal'
+
+print("파싱된 영양성분: ", data)
 
 '''
 ocr = PaddleOCR(use_angle_cls=True, lang='korean')
