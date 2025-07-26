@@ -27,13 +27,19 @@ i = 0
 while i < len(clean_texts):
     text = clean_texts[i]
 
-    if any(label in text for label in ['칼로리', '열량', 'kcal']):
-        for j in range(i+1, min(i+4, len(clean_texts))):
-            match = re.search(r'(\d+(\.\d+)?)\s*(kcal|㎉)', clean_texts[j])
-            if match and '%' not in clean_texts[j]:
-                value = match.group(1) # 숫자만
-                data['칼로리'] = match.group(0)
-                break
+    # 칼로리 관련 키워드 또는 직접 숫자+kcal 형태일 경우
+    if any(label in text for label in ['칼로리', '열량', 'kcal']) or re.match(r'\d+(\.\d+)?\s*(kcal|㎉)', text):
+        match = re.search(r'(\d+(\.\d+)?)\s*(kcal|㎉)', text)
+        if match and '%' not in text:
+            data['칼로리'] = match.group(0)
+        else:
+            # 다음 줄에서 kcal 찾기
+            for j in range(i+1, min(i+4, len(clean_texts))):
+                match = re.search(r'(\d+(\.\d+)?)\s*(kcal|㎉)', clean_texts[j])
+                if match and '%' not in clean_texts[j]:
+                    data['칼로리'] = match.group(0)
+                    break  # ← 이 줄이 for문 안에 있어야 함
+            
 
     elif '탄수화물' in text:
         for j in range(i+1, min(i+4, len(clean_texts))):
